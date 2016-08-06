@@ -26,10 +26,70 @@ Or install it yourself as:
 
 ## Usage
 
+`Kube::Templates::Builder` takes a template file and a configuration file, assigning values from the
+configuration file and emitting a collection of deployments for kubernetes to run.
 
+### Example
+
+Create a deployment template. In this file you can have template variables (e.g. `${QUEUES}`) that 
+will be replaced with values from your configuration. In the following we use three variables,
+`${NAME}`, `${REPLICAS}`, and `${QUEUES}`.
+
+    # resque-template.yaml
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: resque-${NAME}
+    spec:
+      replicas: ${REPLICAS}
+      template:
+        metadata:
+          labels:
+            service: rails
+            app: my-app
+            purpose: worker
+            queues: ${QUEUES}
+        spec:
+          containers:
+          - name: my-app
+            image: us.gcr.io/project-id-1138/my-app-resque:latest
+            env:
+            - name: QUEUE
+              value: ${QUEUES}
+
+Create a configuration file that defines your workers. In the following file we define two types 
+of workers. One, with four replicas, listens onthe "reports" queue. A second listens on the 
+"process_priority" and "process" queues. This second worker will have two replicas set as that
+values it defined in the "defaults" section and it doesn't change it.
+
+    # resque-workers.yml
+    defaults:
+      replicas: 2
+    workers:
+      - queues: reports
+        replicas: 4
+        name: builder
+      - queues: process_priority,process
+     
+Note that while we can define the `NAME` variable, as we did for the first worker, we don't 
+need to and the `Builder` will automatically generate a name from the values provided for 
+the worker. So the second worker would have a name "process-priority-process"
+
+Use the `resque-k8s` command to create a series of YAML deployments
+for kubernetes to consume. You can pipe the output to less to see what it produces.
+
+    $ resque-k8s | less
+
+To apply this run the `kubectl apply` command with the value from the configuration.
+
+    $ resque-k8s | kubectl apply -f -
 
 
 ## Other options
+
+This is a very simple implementation. There are a number of solutions out there that propose to 
+do something similar in the scope of larger efforts.
+
 - There is currently a proposal to 
   [support this in Kubernetes](https://github.com/kubernetes/kubernetes/blob/master/docs/proposals/templates.md).
 

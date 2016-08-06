@@ -1,7 +1,7 @@
 require "kube/templates/version"
+require "kube/templates/builder"
 
 module Kube
   module Templates
-    # Your code goes here...
   end
 end
