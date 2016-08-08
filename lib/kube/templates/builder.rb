@@ -145,7 +145,7 @@ module Kube
       end
 
       def name_from_values(values)
-        values.join("-").gsub(/[^-a-zA-Z0-9]/, "-").gsub(/--+/, "-").gsub(/\A-|-\Z/, "")
+        values.join("-").gsub(/[^-a-zA-Z]/, "-").gsub(/--+/, "-").gsub(/\A-|-\Z/, "")
       end
     end
   end
