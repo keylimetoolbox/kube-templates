@@ -1,4 +1,5 @@
 # Kube::Templates
+[![Gem](https://img.shields.io/gem/v/formatador.svg?maxAge=2592000)](https://rubygems.org/gems/kube-templates)
 
 Simple template system for Kubernetes deployments.
 
