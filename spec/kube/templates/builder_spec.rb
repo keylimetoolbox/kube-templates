@@ -9,9 +9,9 @@ defaults:
   replicas: 2
 workers:
   - queues: report_file
-    replicas: 4
     name: builder
   - queues: process_priority,process
+    replicas: 4
 
   EOS
   }
@@ -60,17 +60,17 @@ spec:
     end
 
     it "assigns the variables correctly in each instance" do
-      expect(deployments[0]).to include "replicas: 4"
       expect(deployments[0]).to include "queues: report_file"
       expect(deployments[0]).not_to include "queues: process_priority,process"
 
+      expect(deployments[1]).to include "replicas: 4"
       expect(deployments[1]).to include "queues: process_priority,process"
       expect(deployments[1]).not_to include "queues: report_file"
     end
 
     it "applies default values when not specified in the worker config" do
-      expect(deployments[0]).to include "replicas: 4"
-      expect(deployments[1]).to include "replicas: 2"
+      expect(deployments[0]).to include "replicas: 2"
+      expect(deployments[1]).to include "replicas: 4"
     end
 
     it "applies the NAME value when provided" do
@@ -78,7 +78,7 @@ spec:
     end
 
     it "generates an appropriate NAME when not provided" do
-      expect(deployments[1]).to include "name: resque-process-priority-process"
+      expect(deployments[1]).to match /^\s+name: resque-process-priority-process$/
     end
   end
 end
